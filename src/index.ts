@@ -1,4 +1,3 @@
-import Sigar from 'node-sigar';
 import execa, { ExecaError } from 'execa';
 import fs from 'fs-extra';
 import ora from 'ora';
@@ -9,7 +8,6 @@ import { Options, Terminals, Terminal } from '~/types';
 
 const COMMAND = '([{<COMMAND>}])';
 const spinner = ora();
-const sigar = new Sigar();
 
 export const defaultOptions: Options = {
   commandTemplate: COMMAND,
@@ -33,7 +31,7 @@ async function getDefaultTerminalCommand(): Promise<string | undefined> {
     const terminalPath = await fs.realpath(await which('x-terminal-emulator'));
     const command = [...(terminalPath.match(REGEX) || [])]?.[0];
     return command;
-  } catch (err) {
+  } catch (err: any) {
     if (err.message.indexOf('not found') > -1) return undefined;
     throw err;
   }
@@ -53,7 +51,7 @@ async function hasTerminal(terminal: Terminal | string) {
   try {
     await which(command);
     return true;
-  } catch (err) {
+  } catch (err: any) {
     if (err.message.indexOf('not found') > -1) return false;
     throw err;
   }
@@ -112,7 +110,7 @@ try installing on of the following terminals to run correctly: ${_terminals
     await tryOpenTerminal(uid, terminal, safeCommand, fullOptions);
     return process.exit();
   } catch (err) {
-    const error: ExecaError = err;
+    const error: any = err;
     if (error.command && error.failed) {
       return openDefaultTerminal(command, options, _terminals, ++_i);
     }
@@ -145,22 +143,12 @@ async function tryOpenTerminal(
   await waitOnTerminal(uid);
   const result = await p;
   process.on('SIGINT', () => {
-    const pid = uidToPid(uid);
-    if (pid) process.kill(pid);
     process.exit();
   });
   process.on('SIGTERM', () => {
-    const pid = uidToPid(uid);
-    if (pid) process.kill(pid);
     process.exit();
   });
   return result;
-}
-
-function uidToPid(uid: string) {
-  return sigar.procList.find((pid: number) => {
-    return sigar.getProcArgs(pid).join(' ').indexOf(uid) > -1;
-  });
 }
 
 async function waitOnTerminal(
@@ -169,8 +157,7 @@ async function waitOnTerminal(
   timeout?: number
 ) {
   await new Promise((r) => setTimeout(r, pollInterval));
-  const pid = uidToPid(uid);
-  if (!pid) return undefined;
+
   return waitOnTerminal(
     uid,
     timeout,

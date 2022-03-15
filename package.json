@@ -1,6 +1,6 @@
 {
   "name": "@pablosz/open-terminal",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "cross platform open terminal and run command",
   "sideEffects": false,
   "keywords": [
@@ -57,7 +57,6 @@
     "core-js": "^3.9.1",
     "execa": "^5.0.0",
     "fs-extra": "^9.1.0",
-    "node-pstree": "^0.0.10",
     "ora": "^5.3.0",
     "uuid": "^8.3.2",
     "which": "^2.0.2"
